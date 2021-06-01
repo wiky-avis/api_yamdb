@@ -28,15 +28,58 @@ class CustomUser(AbstractUser):
 
 
 class Category(models.Model):
-    pass
+    name = models.CharField(max_length=40, verbose_name='Категория')
+    slug = models.SlugField(max_length=40, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Genre(models.Model):
-    pass
+    name = models.CharField(max_length=40, verbose_name='Жанр')
+    slug = models.SlugField(max_length=40, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Title(models.Model):
-    pass
+    name = models.CharField(
+        max_length=100,
+        db_index=True,
+        blank=False,
+        null=False,
+        unique=True,
+        verbose_name='Название произведения',
+    )
+    year = models.IntegerField(
+        blank=True,
+        null=True,
+        verbose_name='Год производства',
+    )
+    description = models.TextField(blank=True)
+    genre = models.ManyToManyField(
+        Genre,
+        blank=True,
+        db_index=True,
+        verbose_name='Жанр произведения'
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='titles',
+        verbose_name='Категория произведения',
+    )
+
+    class Meta:
+        ordering = ['-id', ]
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+
+    def __str__(self):
+        return self.name
 
 
 class Review(models.Model):
