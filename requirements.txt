@@ -26,3 +26,9 @@ sqlparse==0.3.1           # via django
 urllib3==1.25.9           # via requests
 wcwidth==0.1.9            # via pytest
 zipp==3.1.0               # via importlib-metadata
+djangorestframework-simplejwt
+filters
+filters-django
+flake8
+ipdb
+isort
