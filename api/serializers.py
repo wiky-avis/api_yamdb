@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
-class SendCodeSerializer(serializers.Serializer):
+class SendConfirmationCodeSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, email):

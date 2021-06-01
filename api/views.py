@@ -5,14 +5,14 @@ from django.core.mail import send_mail
 from rest_framework import generics, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import (SendCodeSerializer, UserSerializer,
+from .serializers import (SendConfirmationCodeSerializer, UserSerializer,
                           СheckingConfirmationCodeSerializer)
 
 User = get_user_model()
 
 
-class SendCodeViewSet(generics.CreateAPIView):
-    serializer_class = SendCodeSerializer
+class SendConfirmationCodeViewSet(generics.CreateAPIView):
+    serializer_class = SendConfirmationCodeSerializer
     queryset = User.objects.all()
 
     def perform_create(self, serializer):
