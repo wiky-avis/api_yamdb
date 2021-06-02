@@ -1,10 +1,14 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import GetJWTTokenViewSet, SendConfirmationCodeViewSet, UserViewSet
+from .views import (GetJWTTokenViewSet, ReviewViewSet,
+                    SendConfirmationCodeViewSet, UserViewSet)
 
 v1_router = DefaultRouter()
 v1_router.register('users', UserViewSet)
+# v1_router.register('reviews', ReviewViewSet, basename='Review')
+v1_router.register(
+    r'titles/(?P<id>\d+)/reviews', ReviewViewSet, basename='Review')
 
 
 urlpatterns = [

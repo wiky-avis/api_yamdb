@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
+from titles.models import Review
 
 User = get_user_model()
 
@@ -45,3 +46,10 @@ class СheckingConfirmationCodeSerializer(serializers.Serializer):
                     'подтверждения или email'})
         token = {'token': str(AccessToken.for_user(user))}
         return token
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('__all__')
+        model = Review
+        read_only_fields = ('title_id', 'author')

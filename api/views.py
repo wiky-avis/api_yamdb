@@ -8,10 +8,11 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from titles.models import Review, Title
 
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
-from .serializers import (SendConfirmationCodeSerializer, UserSerializer,
-                          СheckingConfirmationCodeSerializer)
+from .serializers import (ReviewSerializer, SendConfirmationCodeSerializer,
+                          UserSerializer, СheckingConfirmationCodeSerializer)
 
 User = get_user_model()
 
@@ -58,3 +59,27 @@ class UserViewSet(viewsets.ModelViewSet):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer = UserSerializer(self.request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('id')
+        title = get_object_or_404(
+            Title.objects.prefetch_related('reviews'),
+            id=title_id
+        )
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        author = self.request.user
+        title_id = self.kwargs.get('id')
+        title = get_object_or_404(
+            Title.objects.prefetch_related('reviews'),
+            id=title_id
+        )
+        serializer.save(
+            author=author,
+            title_id=title
+        )
