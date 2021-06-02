@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from rest_framework import generics, viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
 from .serializers import (SendConfirmationCodeSerializer, UserSerializer,
                           СheckingConfirmationCodeSerializer)
 
@@ -33,5 +34,7 @@ class GetJWTTokenViewSet(TokenObtainPairView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    lookup_field = 'username'
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    permission_classes = [IsAdmin]
