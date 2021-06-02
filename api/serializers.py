@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
-from titles.models import Review
+from titles.models import Comment, Review
 
 User = get_user_model()
 
@@ -53,3 +53,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('__all__')
         model = Review
         read_only_fields = ('title_id', 'author')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('__all__')
+        model = Comment
+        read_only_fields = ('review_id', 'author')

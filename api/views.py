@@ -11,8 +11,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from titles.models import Review, Title
 
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
-from .serializers import (ReviewSerializer, SendConfirmationCodeSerializer,
-                          UserSerializer, СheckingConfirmationCodeSerializer)
+from .serializers import (CommentSerializer, ReviewSerializer,
+                          SendConfirmationCodeSerializer, UserSerializer,
+                          СheckingConfirmationCodeSerializer)
 
 User = get_user_model()
 
@@ -63,6 +64,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorOrAdminOrModerator]
 
     def get_queryset(self):
         title_id = self.kwargs.get('id')
@@ -82,4 +84,29 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(
             author=author,
             title_id=title
+        )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthorOrAdminOrModerator]
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(
+            Review.objects.prefetch_related('comments'),
+            id=review_id
+        )
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        author = self.request.user
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(
+            Review.objects.prefetch_related('comments'),
+            id=review_id
+        )
+        serializer.save(
+            author=author,
+            review_id=review
         )
