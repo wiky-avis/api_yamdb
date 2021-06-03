@@ -90,28 +90,16 @@ class Review(models.Model):
         verbose_name='Отзыв',
         help_text='Оставьте отзыв'
     )
+    text = models.TextField()
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         related_name='reviews'
     )
+    Score = models.IntegerChoices('Score', '1 2 3 4 5 6 7 8 9 10')
+    score = models.IntegerField(choices=Score.choices)
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True
-    )
-    text = models.TextField()
-    score = models.IntegerField(
-        choices=(
-            (1, '1'),
-            (2, '2'),
-            (3, '3'),
-            (4, '4'),
-            (5, '5'),
-            (6, '6'),
-            (7, '7'),
-            (8, '8'),
-            (9, '9'),
-            (10, '10'),
-        )
     )
 
     class Meta:
@@ -135,6 +123,7 @@ class Comment(models.Model):
         verbose_name='Комментарий',
         help_text='Напишите комментарий'
     )
+    text = models.TextField()
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
@@ -143,7 +132,6 @@ class Comment(models.Model):
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True
     )
-    text = models.TextField()
 
     class Meta:
         ordering = ['-pub_date']

@@ -9,9 +9,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from ..titles.models import Category, Genre, Title
+from ..titles.models import Category, Genre, Review, Title
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
-from .serializers import (CategorySerializer, GenreSerializer,
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer,
                           SendConfirmationCodeSerializer, TitleSerializer,
                           UserSerializer, СheckingConfirmationCodeSerializer)
 
@@ -92,3 +93,53 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method in ['POST', 'PATCH']:
             return TitleSerializer
         return TitleSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorOrAdminOrModerator]
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('id')
+        title = get_object_or_404(
+            Title.objects.prefetch_related('reviews'),
+            id=title_id
+        )
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        author = self.request.user
+        title_id = self.kwargs.get('id')
+        title = get_object_or_404(
+            Title.objects.prefetch_related('reviews'),
+            id=title_id
+        )
+        serializer.save(
+            author=author,
+            title_id=title
+        )
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthorOrAdminOrModerator]
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(
+            Review.objects.prefetch_related('comments'),
+            id=review_id
+        )
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        author = self.request.user
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(
+            Review.objects.prefetch_related('comments'),
+            id=review_id
+        )
+        serializer.save(
+            author=author,
+            review_id=review
+        )
