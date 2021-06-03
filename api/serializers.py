@@ -2,8 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
-
-from ..titles.models import Category, Comment, Genre, Review, Title
+from titles.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
@@ -63,11 +62,38 @@ class GenreSerializer(serializers.ModelSerializer):
         exclude = ('id',)
 
 
+class CategoryField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        return CategorySerializer(value).data
+
+
+class GenreField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        return GenreSerializer(value).data
+
+
 class TitleSerializer(serializers.ModelSerializer):
+    category = CategoryField(
+        slug_field='slug',
+        queryset=Category.objects.all(),
+        required=False
+    )
+    genre = GenreField(
+        slug_field='slug',
+        queryset=Genre.objects.all(),
+        many=True)
 
     class Meta:
+        fields = (
+            'id',
+            'name',
+            'year',
+            'rating',
+            'description',
+            'genre',
+            'category',
+        )
         model = Title
-        fields = '__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):

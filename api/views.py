@@ -3,13 +3,16 @@ import secrets
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, mixins, status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from titles.models import Category, Genre, Review, Title
 
-from ..titles.models import Category, Genre, Review, Title
+from .filters import TitlesFilter
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
@@ -75,24 +78,30 @@ class CustomViewSet(
 class CategoryViewSet(CustomViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
     lookup_field = 'slug'
-    search_fields = ('name',)
 
 
 class GenreViewSet(CustomViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
     lookup_field = 'slug'
-    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-
-    def get_serializer_class(self):
-        if self.request.method in ['POST', 'PATCH']:
-            return TitleSerializer
-        return TitleSerializer
+    serializer_class = TitleSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitlesFilter
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

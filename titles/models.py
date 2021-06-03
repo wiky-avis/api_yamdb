@@ -34,6 +34,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['-id', ]
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=40, verbose_name='Жанр')
@@ -41,6 +44,9 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['-id', ]
 
 
 class Title(models.Model):
@@ -58,6 +64,7 @@ class Title(models.Model):
         verbose_name='Год производства',
     )
     description = models.TextField(blank=True)
+    rating = models.IntegerField(blank=True, null=True)
     genre = models.ManyToManyField(
         Genre,
         blank=True,
