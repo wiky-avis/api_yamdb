@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
+from ..titles.models import Category, Genre, Title
+
 User = get_user_model()
 
 
@@ -45,3 +47,24 @@ class СheckingConfirmationCodeSerializer(serializers.Serializer):
                     'подтверждения или email'})
         token = {'token': str(AccessToken.for_user(user))}
         return token
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        exclude = ('id',)
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        exclude = ('id',)
+
+
+class TitleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Title
+        fields = '__all__'

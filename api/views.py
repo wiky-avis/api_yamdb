@@ -3,15 +3,17 @@ import secrets
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, status, viewsets
+from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from ..titles.models import Category, Genre, Title
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
-from .serializers import (SendConfirmationCodeSerializer, UserSerializer,
-                          СheckingConfirmationCodeSerializer)
+from .serializers import (CategorySerializer, GenreSerializer,
+                          SendConfirmationCodeSerializer, TitleSerializer,
+                          UserSerializer, СheckingConfirmationCodeSerializer)
 
 User = get_user_model()
 
@@ -58,3 +60,35 @@ class UserViewSet(viewsets.ModelViewSet):
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer = UserSerializer(self.request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CustomViewSet(
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    pass
+
+
+class CategoryViewSet(CustomViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
+    search_fields = ('name',)
+
+
+class GenreViewSet(CustomViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    lookup_field = 'slug'
+    search_fields = ('name',)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PATCH']:
+            return TitleSerializer
+        return TitleSerializer
