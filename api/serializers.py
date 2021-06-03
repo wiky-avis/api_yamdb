@@ -2,16 +2,25 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
+
 from titles.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class ForUserSerializer(serializers.ModelSerializer):
     class Meta:
+        model = User
         fields = (
             'first_name', 'last_name', 'username', 'bio', 'email', 'role')
+        read_only_fields = ("role", "email")
+
+
+class ForAdminSerializer(serializers.ModelSerializer):
+    class Meta:
         model = User
+        fields = (
+            'first_name', 'last_name', 'username', 'bio', 'email', 'role')
 
 
 class SendConfirmationCodeSerializer(serializers.Serializer):
