@@ -2,6 +2,7 @@ import secrets
 
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, mixins, status, viewsets
@@ -10,7 +11,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-
 from titles.models import Category, Genre, Review, Title
 
 from .filters import TitlesFilter
@@ -111,25 +111,38 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthorOrAdminOrModerator]
 
-    def get_queryset(self):
-        title_id = self.kwargs.get('id')
+    def getTitle(self):
+        title_id = self.kwargs.get('title_id')
         title = get_object_or_404(
             Title.objects.prefetch_related('reviews'),
             id=title_id
         )
+        return title
+
+    def updateRating(self, title):
+        rating = title.reviews.all().aggregate(Avg('score'))
+        title.rating = rating['score__avg']
+        title.save(update_fields=['rating'])
+
+    def get_queryset(self):
+        title = self.getTitle()
         return title.reviews.all()
 
     def perform_create(self, serializer):
         author = self.request.user
-        title_id = self.kwargs.get('id')
-        title = get_object_or_404(
-            Title.objects.prefetch_related('reviews'),
-            id=title_id
-        )
-        serializer.save(
-            author=author,
-            title_id=title
-        )
+        title = self.getTitle()
+        serializer.save(author=author, title_id=title)
+        self.updateRating(title)
+
+    def perform_update(self, serializer):
+        serializer.save()
+        title = self.getTitle()
+        self.updateRating(title)
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        title = self.getTitle()
+        self.updateRating(title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
