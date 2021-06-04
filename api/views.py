@@ -5,7 +5,8 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, mixins, status, viewsets
+from rest_framework import (filters, generics, mixins, serializers, status,
+                            viewsets)
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -131,6 +132,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         author = self.request.user
         title = self.getTitle()
+        reviews = author.reviews.all()
+        if reviews.filter(title_id=title).exists():
+            raise serializers.ValidationError(
+                detail='Вы уже делали ревью на это произведение!',
+                code=status.HTTP_400_BAD_REQUEST)
         serializer.save(author=author, title_id=title)
         self.updateRating(title)
 

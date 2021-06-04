@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core import validators
 from django.db import models
 
 
@@ -103,8 +104,12 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    Score = models.IntegerChoices('Score', '1 2 3 4 5 6 7 8 9 10')
-    score = models.IntegerField(choices=Score.choices)
+    score = models.PositiveSmallIntegerField(
+        validators=[
+            validators.MinValueValidator(1),
+            validators.MaxValueValidator(10)
+        ]
+    )
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True
     )
