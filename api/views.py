@@ -1,5 +1,6 @@
 import secrets
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -12,6 +13,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+
 from titles.models import Category, Genre, Review, Title
 
 from .filters import TitlesFilter
@@ -35,8 +37,12 @@ class SendConfirmationCodeViewSet(generics.CreateAPIView):
         confirmation_code = secrets.token_urlsafe(15)
         subject = 'Код подтверждения на Yamdb'
         message = f'Ваш код подтверждения: {confirmation_code}'
-        from_email = 'admin@yamdb.ru'
-        send_mail(subject, message, from_email, [email], fail_silently=False)
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_ADMIN,
+            [email],
+            fail_silently=False)
 
         return serializer.save(
             username=username, password=confirmation_code, email=email)
@@ -61,11 +67,9 @@ class UserViewSet(viewsets.ModelViewSet):
         if request.method == 'PATCH':
             serializer = ForUserSerializer(
                 user, data=request.data, partial=True)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         serializer = ForUserSerializer(self.request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

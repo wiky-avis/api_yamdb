@@ -4,28 +4,40 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+
     ROLES = [
-        ('user', 'Пользователь'),
-        ('moderator', 'Модератор'),
-        ('admin', 'Администратор')
+        (USER, 'Пользователь'),
+        (MODERATOR, 'Модератор'),
+        (ADMIN, 'Администратор')
     ]
 
     email = models.EmailField(
         'Адрес электронной почты', unique=True, db_index=True,)
     role = models.CharField(
-        'Права', max_length=10, choices=ROLES, default='user')
+        'Права', max_length=10, choices=ROLES, default=USER)
     bio = models.TextField('О себе', null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username',)
 
-    def __str__(self):
-        return self.email
-
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.email
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
 
 
 class Category(models.Model):

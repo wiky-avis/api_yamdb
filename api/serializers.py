@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
+
 from titles.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
@@ -22,17 +23,18 @@ class ForAdminSerializer(serializers.ModelSerializer):
             'first_name', 'last_name', 'username', 'bio', 'email', 'role')
 
 
-class SendConfirmationCodeSerializer(serializers.Serializer):
+class SendConfirmationCodeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
+
+    class Meta:
+        model = User
+        fields = ('email',)
 
     def validate_email(self, email):
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError(
                 {'detail': 'Пользователь с таким email уже есть в нашей базе'})
         return email
-
-    def create(self, validated_data):
-        return User.objects.create(**validated_data)
 
 
 class СheckingConfirmationCodeSerializer(serializers.Serializer):

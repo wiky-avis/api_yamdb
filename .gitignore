@@ -149,3 +149,4 @@ dmypy.json
 media/
 
 sent_emails/
+requests.http
