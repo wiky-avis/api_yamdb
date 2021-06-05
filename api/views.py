@@ -56,7 +56,7 @@ class UserViewSet(viewsets.ModelViewSet):
         detail=False,
         permission_classes=[IsAuthenticated])
     def me(self, request, pk=None):
-        user = get_object_or_404(User, email=self.request.user.email)
+        user = self.request.user
         if request.method == 'PATCH':
             serializer = ForUserSerializer(
                 user, data=request.data, partial=True)
