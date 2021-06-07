@@ -6,8 +6,7 @@ from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (filters, generics, mixins, serializers, status,
-                            viewsets)
+from rest_framework import filters, generics, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -18,11 +17,12 @@ from titles.models import Category, Genre, Review, Title
 
 from .filters import TitlesFilter
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
-from .serializers import (CategorySerializer, CommentSerializer,
-                          ForAdminSerializer, ForUserSerializer,
-                          GenreSerializer, ReviewSerializer,
-                          SendConfirmationCodeSerializer, TitleSerializer,
-                          СheckingConfirmationCodeSerializer)
+from .serializers import (
+    CategorySerializer, CommentSerializer, ForAdminSerializer,
+    ForUserSerializer, GenreSerializer, ReviewSerializer,
+    SendConfirmationCodeSerializer, TitleReadSerializer, TitleWriteSerializer,
+    СheckingConfirmationCodeSerializer,
+)
 
 User = get_user_model()
 
@@ -104,19 +104,24 @@ class GenreViewSet(CustomViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('-id')
     pagination_class = PageNumberPagination
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitlesFilter
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PATCH']:
+            return TitleWriteSerializer
+        return TitleReadSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthorOrAdminOrModerator]
 
-    def getTitle(self):
+    def get_title(self):
         title_id = self.kwargs.get('title_id')
         title = get_object_or_404(
             Title.objects.prefetch_related('reviews'),
@@ -124,35 +129,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
         return title
 
-    def updateRating(self, title):
-        rating = title.reviews.all().aggregate(Avg('score'))
-        title.rating = rating['score__avg']
-        title.save(update_fields=['rating'])
-
     def get_queryset(self):
-        title = self.getTitle()
+        title = self.get_title()
         return title.reviews.all()
 
     def perform_create(self, serializer):
         author = self.request.user
-        title = self.getTitle()
-        reviews = author.reviews.all()
-        if reviews.filter(title_id=title).exists():
-            raise serializers.ValidationError(
-                detail='Вы уже делали ревью на это произведение!',
-                code=status.HTTP_400_BAD_REQUEST)
-        serializer.save(author=author, title_id=title)
-        self.updateRating(title)
-
-    def perform_update(self, serializer):
-        serializer.save()
-        title = self.getTitle()
-        self.updateRating(title)
-
-    def perform_destroy(self, instance):
-        instance.delete()
-        title = self.getTitle()
-        self.updateRating(title)
+        title = self.get_title()
+        serializer.save(author=author, title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -176,5 +160,5 @@ class CommentViewSet(viewsets.ModelViewSet):
         )
         serializer.save(
             author=author,
-            review_id=review
+            review=review
         )
