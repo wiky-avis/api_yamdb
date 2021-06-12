@@ -29,7 +29,7 @@ Python 3, Django 3, Django REST Framework, SQLite 3, Simple-JWT, GIT.
 
 ## Установка:
 Клонируем репозиторий на локальную машину:
-```$ git clone https://github.com/netshy/api_final_yatube.git```
+```$ git clone https://github.com/wiky-avis/api_yamdb-c-.git```
 
 Создаем виртуальное окружение:
 ```$ python -m venv venv```
