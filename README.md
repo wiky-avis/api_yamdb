@@ -45,7 +45,3 @@ Python 3, Django 3, Django REST Framework, SQLite 3, Simple-JWT, GIT.
 
 Запускаем django сервер:
 ```$ python manage.py runserver```
-
-## Примеры запросов к API:
-
-
