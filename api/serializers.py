@@ -2,60 +2,15 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
 from rest_framework_simplejwt.tokens import AccessToken
-
 from titles.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
 
-class ForUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
+        fields = ('first_name', 'last_name', 'username', 'bio', 'email', 'role')
         model = User
-        fields = (
-            'first_name', 'last_name', 'username', 'bio', 'email', 'role')
-        read_only_fields = ('role', 'email')
-
-
-class ForAdminSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'first_name', 'last_name', 'username', 'bio', 'email', 'role')
-
-
-class SendConfirmationCodeSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField()
-
-    class Meta:
-        model = User
-        fields = ('email',)
-
-    def validate_email(self, email):
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                {'detail': 'Пользователь с таким email уже есть в нашей базе'})
-        return email
-
-
-class СheckingConfirmationCodeSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    confirmation_code = serializers.CharField()
-
-    def validate(self, data):
-        email = data.get('email')
-        confirmation_code = data.get('confirmation_code')
-        user = get_object_or_404(
-            User,
-            email=email,
-            password=confirmation_code,
-            is_active=True)
-        if user is None:
-            raise serializers.ValidationError(
-                {
-                    'detail': 'Такого пользователя нет или неверный код '
-                    'подтверждения или email'})
-        token = {'token': str(AccessToken.for_user(user))}
-        return token
 
 
 class CategorySerializer(serializers.ModelSerializer):

@@ -1,77 +1,117 @@
-import secrets
 
-from django.conf import settings
+import string
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ValidationError as VE
 from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, mixins, status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
-
+from rest_framework.serializers import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
 from titles.models import Category, Genre, Review, Title
 
 from .filters import TitlesFilter
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
-from .serializers import (
-    CategorySerializer, CommentSerializer, ForAdminSerializer,
-    ForUserSerializer, GenreSerializer, ReviewSerializer,
-    SendConfirmationCodeSerializer, TitleReadSerializer, TitleWriteSerializer,
-    СheckingConfirmationCodeSerializer,
-)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          TitleReadSerializer, TitleWriteSerializer,
+                          UserSerializer)
 
 User = get_user_model()
 
 
-class SendConfirmationCodeViewSet(generics.CreateAPIView):
-    serializer_class = SendConfirmationCodeSerializer
-    queryset = User.objects.all()
-
-    def perform_create(self, serializer):
-        email = serializer.validated_data['email']
-        username = email.split('@')[0]
-        confirmation_code = secrets.token_urlsafe(15)
-        subject = 'Код подтверждения на Yamdb'
-        message = f'Ваш код подтверждения: {confirmation_code}'
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_ADMIN,
-            [email],
-            fail_silently=False)
-
-        return serializer.save(
-            username=username, password=confirmation_code, email=email)
+def create_username(email):
+    email = email.lower()
+    cleaner = str.maketrans(dict.fromkeys(string.punctuation))
+    username = email.translate(cleaner)
+    return username
 
 
-class GetJWTTokenViewSet(TokenObtainPairView):
-    serializer_class = СheckingConfirmationCodeSerializer
+@api_view(['POST'])
+def send_generation_code(request):
+    email = request.data.get('email')
+    try:
+        validate_email(email)
+    except VE:
+        raise ValidationError({'email': 'Enter a valid email address.'})
+    email = email.lower()
+    cleaner = str.maketrans(dict.fromkeys(string.punctuation))
+    username = email.translate(cleaner)
+    user, created = User.objects.get_or_create(
+        username=username, email=email, is_active=False
+    )
+    confirmation_code = default_token_generator.make_token(user)
+    send_mail(
+        'Письмо с кодом подтверждения для доступа на YamDB',
+        confirmation_code,
+        'admin@yamdb.fake',
+        [email],
+    )
+    return Response({'email': email})
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    serializer_class = ForAdminSerializer
-    lookup_field = 'username'
-    queryset = User.objects.all()
+@api_view(['POST'])
+def generation_token_for_user(request):
+    email = request.data.get('email')
+    confirmation_code = request.data.get('confirmation_code')
+    if not confirmation_code or not email:
+        raise ValidationError(
+            {'detail': 'confirmation_code and email are required'}
+        )
+    user = generics.get_object_or_404(User, email=email)
+    context = {'confirmation_code': 'Enter a valid confirmation code'}
+    if default_token_generator.check_token(user=user, token=confirmation_code):
+        user.is_active = True
+        user.save()
+        refresh = RefreshToken.for_user(user)
+        context = {
+            'token': str(refresh.access_token),
+        }
+    return Response(context)
+
+
+class UserDetail(viewsets.ModelViewSet):
     permission_classes = [IsAdmin]
+    queryset = User.objects.all()
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', ]
+    lookup_field = 'username'
+    serializer_class = UserSerializer
 
     @action(
         methods=['GET', 'PATCH'],
         detail=False,
         permission_classes=[IsAuthenticated])
-    def me(self, request, pk=None):
-        user = self.request.user
+    def me(self, request):
         if request.method == 'PATCH':
-            serializer = ForUserSerializer(
-                user, data=request.data, partial=True)
+            serializer = UserSerializer(
+                request.user, data=request.data, partial=True
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = ForUserSerializer(self.request.user)
+        serializer = UserSerializer(self.request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# class UserMeDetailAPIView(generics.RetrieveUpdateAPIView):
+#     queryset = User.objects.all()
+#     filter_backends = (filters.SearchFilter,)
+#     serializer_class = UserSerializer
+#     lookup_field = ['username']
+#     search_fields = ['username', ]
+
+#     def get_object(self):
+#         instance = get_object_or_404(User, username=self.request.user.username)
+#         return instance
 
 
 class CustomViewSet(
