@@ -52,6 +52,7 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 Создание и применение миграций:
 
   `docker-compose exec web python manage.py makemigrations`
+
   `docker-compose exec web python manage.py migrate --noinput`
   
 Проект запущен и доступен по адресу [http://127.0.0.1/](http://127.0.0.1/).
