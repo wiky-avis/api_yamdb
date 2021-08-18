@@ -34,12 +34,14 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
 Создать файл .env в корневой папке проета с таким содержимым:
 
-  ```DB_ENGINE=django.db.backends.postgresql
+  ```
+     DB_ENGINE=django.db.backends.postgresql
      DB_NAME=postgres
      POSTGRES_USER=postgres
      POSTGRES_PASSWORD=postgres
      DB_HOST=db
-     DB_PORT=5432```
+     DB_PORT=5432
+  ```
 
 Запустите docker-compose:
 
