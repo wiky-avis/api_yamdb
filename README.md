@@ -34,25 +34,25 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
 Создать файл .env в корневой папке проета с таким содержимым:
 
-```DB_ENGINE=django.db.backends.postgresql
+``DB_ENGINE=django.db.backends.postgresql
 DB_NAME=postgres
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 DB_HOST=db
-DB_PORT=5432
+DB_PORT=5432``
 
 Запустите docker-compose:
 
-`docker-compose up
+`docker-compose up`
 
 Создание и применение миграций:
 
-`docker-compose exec web python manage.py makemigrations и `docker-compose exec web python manage.py migrate --noinput
+`docker-compose exec web python manage.py makemigrations` и `docker-compose exec web python manage.py migrate --noinput`
 
 Создаем суперпользователя:
 
-`docker-compose exec web python manage.py createsuperuser
+`docker-compose exec web python manage.py createsuperuser`
 
 Сбор статических файлов, если вдруг статика не подгрузилась:
 
-`docker-compose exec web python manage.py collectstatic --no-input
+`docker-compose exec web python manage.py collectstatic --no-input`
