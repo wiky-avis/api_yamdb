@@ -57,7 +57,7 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
   `docker-compose exec web python manage.py createsuperuser`
   
-Проект запущен и доступен по адресу [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
+Проект запущен и доступен по адресу [http://127.0.0.1/](http://127.0.0.1/).
 
 Сбор статических файлов, если вдруг статика не подгрузилась:
 
