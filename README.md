@@ -28,6 +28,8 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 Документация к API доступна по адресу http://localhost:8000/redoc/
 
 ## Установка:
+Для работы приложения требуется установка на ваш компьютер [Python](https://www.python.org/downloads/), [Docker](https://hub.docker.com/editions/community/docker-ce-desktop-windows), [PostgreSQL](https://postgrespro.ru/windows).
+
 Склонировать репозиторий на локальную машину:
 
   `git clone https://github.com/wiky-avis/api_yamdb-c-.git`
@@ -45,7 +47,7 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
 Запустите docker-compose:
 
-  `docker-compose up`
+  `docker-compose up -d`
 
 Создание и применение миграций:
 
@@ -54,6 +56,8 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 Создаем суперпользователя:
 
   `docker-compose exec web python manage.py createsuperuser`
+  
+Проект запущен и доступен по адресу [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
 
 Сбор статических файлов, если вдруг статика не подгрузилась:
 
