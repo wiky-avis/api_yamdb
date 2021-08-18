@@ -34,7 +34,7 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
   `git clone https://github.com/wiky-avis/api_yamdb-c-.git`
 
-Создать файл .env в корневой папке проета с таким содержимым:
+Создать файл .env в корневой папке проекта с таким содержимым:
 
   ```
      DB_ENGINE=django.db.backends.postgresql
