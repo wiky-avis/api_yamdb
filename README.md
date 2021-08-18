@@ -52,6 +52,8 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 Создание и применение миграций:
 
   `docker-compose exec web python manage.py makemigrations` и `docker-compose exec web python manage.py migrate --noinput`
+  
+Проект запущен и доступен по адресу [http://127.0.0.1/](http://127.0.0.1/).
 
 Создаем суперпользователя:
 
@@ -60,8 +62,7 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 Сбор статических файлов, если вдруг статика не подгрузилась:
 
   `docker-compose exec web python manage.py collectstatic --no-input`
-  
-Проект запущен и доступен по адресу [http://127.0.0.1/](http://127.0.0.1/).
 
 Остановить все запущенные контейнеры:
+
   `docker-compose down`
