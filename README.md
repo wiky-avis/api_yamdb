@@ -62,3 +62,6 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
   `docker-compose exec web python manage.py collectstatic --no-input`
   
 Проект запущен и доступен по адресу [http://127.0.0.1/](http://127.0.0.1/).
+
+Остановить все запущенные контейнеры:
+  `docker-compose down`
