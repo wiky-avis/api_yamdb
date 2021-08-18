@@ -1,7 +1,7 @@
 # REST API Yamdb – база отзывов пользователей о произведениях.
 
 ## Стек: 
-Python 3, Django 3, Django REST Framework, SQLite 3, Simple-JWT, GIT.
+Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
 ## Описание:
 Реализован пользовательский функционал дающий возможность пользоваться приложением не посещая сайт:
@@ -28,20 +28,31 @@ Python 3, Django 3, Django REST Framework, SQLite 3, Simple-JWT, GIT.
 Документация к API доступна по адресу http://localhost:8000/redoc/
 
 ## Установка:
-Клонируем репозиторий на локальную машину:
-```$ git clone https://github.com/wiky-avis/api_yamdb-c-.git```
+Склонировать репозиторий на локальную машину:
 
-Создаем виртуальное окружение:
-```$ python -m venv venv```
+`git clone https://github.com/wiky-avis/api_yamdb-c-.git`
 
-Устанавливаем зависимости:
-```$ pip install -r requirements.txt```
+Создать файл .env в корневой папке проета с таким содержимым:
+
+`DB_ENGINE=django.db.backends.postgresql`
+`DB_NAME=postgres`
+`POSTGRES_USER=postgres`
+`POSTGRES_PASSWORD=postgres`
+`DB_HOST=db`
+`DB_PORT=5432`
+
+Запустите docker-compose:
+
+`docker-compose up`
 
 Создание и применение миграций:
-```$ python manage.py makemigrations``` и ```$ python manage.py migrate```
+
+`docker-compose exec web python manage.py makemigrations` и `docker-compose exec web python manage.py migrate --noinput`
 
 Создаем суперпользователя:
-```$ python manage.py createsuperuser --email admin@test.com --username admin```
 
-Запускаем django сервер:
-```$ python manage.py runserver```
+`docker-compose exec web python manage.py createsuperuser`
+
+Сбор статических файлов, если вдруг статика не подгрузилась:
+
+`docker-compose exec web python manage.py collectstatic --no-input`
