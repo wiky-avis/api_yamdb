@@ -30,11 +30,11 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 ## Установка:
 Для работы приложения требуется установка на ваш компьютер [Python](https://www.python.org/downloads/), [Docker](https://hub.docker.com/editions/community/docker-ce-desktop-windows), [PostgreSQL](https://postgrespro.ru/windows).
 
-Склонировать репозиторий на локальную машину:
+Склонируйте репозиторий на локальную машину:
 
   `https://github.com/wiky-avis/api_yamdb.git`
 
-Создать файл .env в корневой папке проекта с таким содержимым:
+Создайте файл .env в корневой папке проекта с таким содержимым:
 
   ```
      DB_ENGINE=django.db.backends.postgresql
@@ -54,16 +54,16 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
   `docker-compose exec web python manage.py makemigrations`
 
   `docker-compose exec web python manage.py migrate --noinput`
+
+Сбор статических файлов, если вдруг статика не подгрузилась:
+
+  `docker-compose exec web python manage.py collectstatic --no-input`
   
 Проект запущен и доступен по адресу [http://127.0.0.1/](http://127.0.0.1/).
 
 Создаем суперпользователя:
 
   `docker-compose exec web python manage.py createsuperuser`
-
-Сбор статических файлов, если вдруг статика не подгрузилась:
-
-  `docker-compose exec web python manage.py collectstatic --no-input`
 
 Остановить все запущенные контейнеры:
 
