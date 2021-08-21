@@ -1,4 +1,4 @@
-FROM python:3.8.5
+FROM python:3.8-slim-buster
 
 RUN mkdir /code
 COPY requirements.txt /code
