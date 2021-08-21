@@ -1,7 +1,7 @@
 # REST API Yamdb – база отзывов пользователей о произведениях.
 
 ## Стек: 
-Python 3, Django 3, Django REST Framework, SQLite 3, Simple-JWT, GIT.
+Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
 ## Описание:
 Реализован пользовательский функционал дающий возможность пользоваться приложением не посещая сайт:
@@ -28,20 +28,43 @@ Python 3, Django 3, Django REST Framework, SQLite 3, Simple-JWT, GIT.
 Документация к API доступна по адресу http://localhost:8000/redoc/
 
 ## Установка:
-Клонируем репозиторий на локальную машину:
-```$ git clone https://github.com/wiky-avis/api_yamdb-c-.git```
+Для работы приложения требуется установка на ваш компьютер [Python](https://www.python.org/downloads/), [Docker](https://hub.docker.com/editions/community/docker-ce-desktop-windows), [PostgreSQL](https://postgrespro.ru/windows).
 
-Создаем виртуальное окружение:
-```$ python -m venv venv```
+Склонируйте репозиторий на локальную машину:
 
-Устанавливаем зависимости:
-```$ pip install -r requirements.txt```
+  `https://github.com/wiky-avis/api_yamdb.git`
+
+Создайте файл .env в корневой папке проекта с таким содержимым:
+
+  ```
+     DB_ENGINE=django.db.backends.postgresql
+     DB_NAME=postgres
+     POSTGRES_USER=postgres
+     POSTGRES_PASSWORD=postgres
+     DB_HOST=db
+     DB_PORT=5432
+  ```
+
+Запустите docker-compose:
+
+  `docker-compose up -d`
 
 Создание и применение миграций:
-```$ python manage.py makemigrations``` и ```$ python manage.py migrate```
+
+  `docker-compose exec web python manage.py makemigrations`
+
+  `docker-compose exec web python manage.py migrate --noinput`
+
+Сбор статических файлов, если вдруг статика не подгрузилась:
+
+  `docker-compose exec web python manage.py collectstatic --no-input`
+  
+Проект запущен и доступен по адресу [http://127.0.0.1/](http://127.0.0.1/).
 
 Создаем суперпользователя:
-```$ python manage.py createsuperuser --email admin@test.com --username admin```
 
-Запускаем django сервер:
-```$ python manage.py runserver```
+  `docker-compose exec web python manage.py createsuperuser`
+
+Остановить все запущенные контейнеры:
+
+  `docker-compose down`
