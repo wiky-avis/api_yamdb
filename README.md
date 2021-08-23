@@ -49,9 +49,7 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
   `docker-compose up -d`
 
-Создание и применение миграций:
-
-  `docker-compose exec web python manage.py makemigrations`
+Применените миграции базы данных:
 
   `docker-compose exec web python manage.py migrate --noinput`
 
@@ -65,6 +63,16 @@ Python 3, Django 3, Django REST Framework, Docker, PostgreSQL, Simple-JWT, GIT.
 
   `docker-compose exec web python manage.py createsuperuser`
 
+Заполнения базы начальными данными:
+
+  `docker-compose exec web python manage.py loaddata fixtures.json`
+
 Остановить все запущенные контейнеры:
 
   `docker-compose down`
+
+API доступен по адресу [http://127.0.0.1/api/v1/](http://127.0.0.1/api/v1/).
+
+Скачать образ YaMDb из репозитория на DockerHub:
+
+  `docker pull 79452165/yamdb`
