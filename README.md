@@ -75,4 +75,4 @@ API доступен по адресу [http://127.0.0.1/api/v1/](http://127.0.0
 
 Скачать образ YaMDb из репозитория на DockerHub:
 
-  `docker pull 79452165/yamdb`
+  `docker pull 79452165/yamdb:v1`
